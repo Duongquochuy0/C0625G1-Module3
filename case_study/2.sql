@@ -1,0 +1,121 @@
+-- 1. Database
+CREATE DATABASE IF NOT EXISTS tiem_cam_do_case_study
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE tiem_cam_do_case_study;
+
+-- 2. ACCOUNT: tài khoản cho KH/NV/QL
+CREATE TABLE ACCOUNT (
+  account_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  username   VARCHAR(100) UNIQUE NOT NULL,
+  password   VARCHAR(255) NOT NULL,
+  role       ENUM('KHACH_HANG','NHAN_VIEN','QUAN_LY') NOT NULL,
+  trang_thai TINYINT DEFAULT 1,
+  ngay_tao   DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- 3. QUAN_LY
+CREATE TABLE QUAN_LY (
+  ma_quan_ly INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  account_id INT UNSIGNED UNIQUE NOT NULL,
+  ho_ten     VARCHAR(200) NOT NULL,
+  so_dien_thoai VARCHAR(20),
+  email      VARCHAR(150),
+  ngay_tao   DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (account_id) REFERENCES ACCOUNT(account_id)
+    ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- 4. NHAN_VIEN  (đã bỏ cột ma_vi_tri)
+CREATE TABLE NHAN_VIEN (
+  ma_nhan_vien INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  account_id   INT UNSIGNED UNIQUE NOT NULL,
+  ma_quan_ly   INT UNSIGNED,
+  ho_ten       VARCHAR(200) NOT NULL,
+  so_dien_thoai VARCHAR(20),
+  email        VARCHAR(150),
+  ngay_tao     DATETIME DEFAULT CURRENT_TIMESTAMP,
+  trang_thai   TINYINT DEFAULT 1,
+  FOREIGN KEY (account_id) REFERENCES ACCOUNT(account_id)
+    ON UPDATE CASCADE ON DELETE CASCADE,
+  FOREIGN KEY (ma_quan_ly) REFERENCES QUAN_LY(ma_quan_ly)
+    ON UPDATE CASCADE ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- 5. KHACH_HANG
+CREATE TABLE KHACH_HANG (
+  ma_khach_hang INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  account_id    INT UNSIGNED UNIQUE,
+  ho_ten        VARCHAR(200) NOT NULL,
+  so_cmnd       VARCHAR(50) UNIQUE,
+  so_dien_thoai VARCHAR(20),
+  dia_chi       VARCHAR(300),
+  ngay_tao      DATETIME DEFAULT CURRENT_TIMESTAMP,
+  trang_thai    TINYINT DEFAULT 1,
+  FOREIGN KEY (account_id) REFERENCES ACCOUNT(account_id)
+    ON UPDATE CASCADE ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- 6. HOP_DONG_CAM_DO
+CREATE TABLE HOP_DONG_CAM_DO (
+  ma_hop_dong   INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  ma_khach_hang INT UNSIGNED NOT NULL,
+  ma_nhan_vien  INT UNSIGNED NOT NULL,
+  ngay_cam      DATE NOT NULL,
+  ngay_het_han  DATE NOT NULL,
+  tong_tien_vay DECIMAL(15,2) NOT NULL,
+  lai_suat      DECIMAL(5,2) DEFAULT 0.00,
+  trang_thai    ENUM('DANG_CAM','DA_CHUOC','THANH_LY') DEFAULT 'DANG_CAM',
+  ghi_chu       TEXT,
+  ngay_tao      DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (ma_khach_hang) REFERENCES KHACH_HANG(ma_khach_hang)
+    ON UPDATE CASCADE ON DELETE RESTRICT,
+  FOREIGN KEY (ma_nhan_vien) REFERENCES NHAN_VIEN(ma_nhan_vien)
+    ON UPDATE CASCADE ON DELETE RESTRICT
+) ENGINE=InnoDB;
+
+-- 7. SAN_PHAM
+CREATE TABLE SAN_PHAM (
+  ma_san_pham      INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  ma_hop_dong      INT UNSIGNED NOT NULL,
+  ma_nhan_vien     INT UNSIGNED,
+  loai_san_pham    VARCHAR(100) NOT NULL,
+  mo_ta_chi_tiet   VARCHAR(500),
+  gia_tri_dinh_gia DECIMAL(15,2) NOT NULL,
+  trang_thai       ENUM('CAM','DA_CHUOC','DA_THANH_LY') DEFAULT 'CAM',
+  ngay_nhap        DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (ma_hop_dong) REFERENCES HOP_DONG_CAM_DO(ma_hop_dong)
+    ON UPDATE CASCADE ON DELETE CASCADE,
+  FOREIGN KEY (ma_nhan_vien) REFERENCES NHAN_VIEN(ma_nhan_vien)
+    ON UPDATE CASCADE ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- 8. HOA_DON
+CREATE TABLE HOA_DON (
+  ma_hoa_don    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  ma_hop_dong   INT UNSIGNED NOT NULL,
+  ngay_lap      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  so_tien       DECIMAL(15,2) NOT NULL,
+  loai_hoa_don  ENUM('LAI','CHUOC','KHAC') NOT NULL,
+  ghi_chu       VARCHAR(500),
+  FOREIGN KEY (ma_hop_dong) REFERENCES HOP_DONG_CAM_DO(ma_hop_dong)
+    ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- 9. THANH_LY
+CREATE TABLE THANH_LY (
+  ma_thanh_ly   INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  ma_san_pham   INT UNSIGNED NOT NULL,
+  ngay_thanh_ly DATE NOT NULL,
+  gia_ban       DECIMAL(15,2) NOT NULL,
+  nguoi_mua     VARCHAR(200),
+  ghi_chu       TEXT,
+  ngay_tao      DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (ma_san_pham) REFERENCES SAN_PHAM(ma_san_pham)
+    ON UPDATE CASCADE ON DELETE RESTRICT
+) ENGINE=InnoDB;
+
+-- 10. Indexes
+CREATE INDEX idx_hopdong_trangthai ON HOP_DONG_CAM_DO(trang_thai);
+CREATE INDEX idx_sanpham_trangthai ON SAN_PHAM(trang_thai);
+CREATE INDEX idx_hoadon_hopdong    ON HOA_DON(ma_hop_dong);
+CREATE INDEX idx_thanhly_sanpham   ON THANH_LY(ma_san_pham);
