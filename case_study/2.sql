@@ -1,6 +1,5 @@
 -- 1. Database
-CREATE DATABASE IF NOT EXISTS tiem_cam_do_case_study
-  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS tiem_cam_do_case_study;
 USE tiem_cam_do_case_study;
 
 -- 2. ACCOUNT: tài khoản cho KH/NV/QL

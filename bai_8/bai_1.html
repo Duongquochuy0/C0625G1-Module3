@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Responsive Image Gallery</title>
+    <style>
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        .gallery img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 6px;
+        }
+        .caption {
+            text-align: center;
+            padding: 8px 0;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+        }
+        @media (max-width: 700px) {
+            .gallery {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 500px) {
+            .gallery {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="container py-4">
+
+<h2 class="mb-3">Responsive Image Gallery</h2>
+<p>Resize the browser window to see the effect.</p>
+
+<div class="gallery">
+    <div>
+        <img src="https://picsum.photos/id/1015/600/400" alt="">
+        <div class="caption">Add a description of the image here</div>
+    </div>
+    <div>
+        <img src="https://picsum.photos/id/1018/600/400" alt="">
+        <div class="caption">Add a description of the image here</div>
+    </div>
+    <div>
+        <img src="https://picsum.photos/id/1021/600/400" alt="">
+        <div class="caption">Add a description of the image here</div>
+    </div>
+    <div>
+        <img src="https://picsum.photos/id/1022/600/400" alt="">
+        <div class="caption">Add a description of the image here</div>
+    </div>
+</div>
+
+</body>
+</html>
